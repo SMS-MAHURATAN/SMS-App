@@ -1,0 +1,31 @@
+name: Build School APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.3'
+          channel: 'stable'
+
+      - name: Generate Android App & Build APK
+        run: |
+          cp lib/main.dart ./temp_main.dart
+          cp pubspec.yaml ./temp_pubspec.yaml
+          flutter create . --org com.sardarmemorialschool --project-name sardar_memorial_school_erp
+          cp ./temp_main.dart lib/main.dart
+          cp ./temp_pubspec.yaml pubspec.yaml
+          flutter pub get
+          flutter build apk --release
+
+      - name: Upload Final APK File
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sardar_Memorial_School_APK
+          path: build/app/outputs/flutter-apk/app-release.apk
